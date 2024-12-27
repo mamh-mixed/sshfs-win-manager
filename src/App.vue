@@ -1,20 +1,3 @@
-<script lang="ts" setup>
-import { watch } from 'vue'
-
-import { useSettingsStore } from './store/settings'
-
-const settingsStore = useSettingsStore()
-
-watch(
-  () => settingsStore.settings.theme,
-  (theme) => {
-    document.documentElement.classList.remove('app-theme-light', 'app-theme-dark', 'app-theme-auto')
-    document.documentElement.classList.add(`app-theme-${theme}`)
-  },
-  { immediate: true }
-)
-</script>
-
 <template>
   <router-view />
 </template>

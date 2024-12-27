@@ -7,6 +7,7 @@ import ConnectionOptionsEditor from '../components/ConnectionOptionsEditor.vue'
 import DialogModal from '../components/DialogModal.vue'
 import GroupItem from '../components/GroupItem.vue'
 
+import { getDefaultPrivateKeyPath, getDefaultSSHFSBinPath } from '../lib/os'
 import { Connection, useConnectionStore } from '../store/connections'
 import { Group, useGroupStore } from '../store/groups'
 import { useMainStore } from '../store/main'
@@ -88,6 +89,7 @@ function openConnectionEditor(connection?: Connection): void {
     connectionEditorData.value = {
       port: '22',
       authMethod: 'password',
+      keyFile: getDefaultPrivateKeyPath(),
       options: []
     }
     isEditing.value = false
@@ -380,7 +382,7 @@ onMounted(() => {
           <input
             v-model="connectionEditorData.keyFile"
             class="form-input"
-            placeholder="%UserProfile%\.ssh\id_rsa"
+            :placeholder="getDefaultPrivateKeyPath()"
           />
         </label>
       </div>
@@ -509,7 +511,7 @@ onMounted(() => {
           <input
             v-model="settingsStore.settings.sshfsBin"
             class="form-input"
-            placeholder="C:\Program Files\SSHFS-Win\bin\sshfs.exe"
+            :placeholder="getDefaultSSHFSBinPath()"
           />
         </label>
       </div>
@@ -543,7 +545,7 @@ onMounted(() => {
           <select v-model="settingsStore.settings.theme" class="form-input">
             <option value="light">Light</option>
             <option value="dark">Dark</option>
-            <option value="auto">System</option>
+            <option value="system">System</option>
           </select>
         </label>
       </div>

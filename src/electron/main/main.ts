@@ -1,21 +1,9 @@
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  Menu,
-  nativeImage,
-  nativeTheme,
-  safeStorage,
-  Tray
-} from 'electron'
-import { existsSync } from 'node:fs'
-import { readFile, writeFile } from 'node:fs/promises'
+import { app, BrowserWindow, nativeTheme } from 'electron'
 import { join } from 'node:path'
+import { initIpcHandlers } from './ipc-handlers'
+import { initTray } from './tray'
 
 const isDev = process.env.npm_lifecycle_event === 'app:dev' ? true : false
-
-let tray
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -40,72 +28,16 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../../index.html'))
   }
-
-  mainWindow.on('focus', () => {
-    mainWindow.webContents.send('window-focus', true)
-  })
-
-  mainWindow.on('blur', () => {
-    mainWindow.webContents.send('window-focus', false)
-  })
 }
 
 app.whenReady().then(() => {
   createWindow()
 
-  const trayIcon = nativeImage.createFromPath(join(__dirname, '../images/TrayTemplate@2x.png'))
-  const trayContextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Open',
-      click: () => {
-        createWindow()
-      }
-    },
-    {
-      label: 'Quit',
-      click: () => {
-        app.quit()
-      }
-    }
-  ])
-
-  tray = new Tray(trayIcon, '30a53ceb-4e9d-437d-b5fe-22b1f21f24c1')
-  tray.setToolTip('SSHFS-Win Manager')
-  tray.setContextMenu(trayContextMenu)
-
-  ipcMain.handle('dialog', async (event, options) => {
-    return await dialog.showOpenDialog(options)
+  initTray({
+    createWindow
   })
 
-  ipcMain.handle('storeData', async (event, name, data) => {
-    const filePath = join(__dirname, `${name}.json`)
-
-    await writeFile(filePath, data, 'utf-8')
-  })
-
-  ipcMain.handle('loadData', async (event, name) => {
-    const filePath = join(__dirname, `${name}.json`)
-
-    if (!existsSync(filePath)) return ''
-
-    return await readFile(filePath, 'utf-8')
-  })
-
-  ipcMain.handle('storeSafeData', (event, name, data) => {
-    const filePath = join(__dirname, `${name}.dat`)
-
-    void writeFile(filePath, safeStorage.encryptString(data).toString('binary'), 'binary')
-  })
-
-  ipcMain.handle('loadSafeData', async (event, name) => {
-    const filePath = join(__dirname, `${name}.dat`)
-
-    if (!existsSync(filePath)) return ''
-
-    const buffer = Buffer.from(await readFile(filePath, 'binary'), 'binary')
-
-    return safeStorage.decryptString(buffer)
-  })
+  initIpcHandlers()
 })
 
 app.on('window-all-closed', () => {

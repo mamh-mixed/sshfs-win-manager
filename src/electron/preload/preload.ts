@@ -1,7 +1,8 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, nativeTheme } from 'electron'
 
 export interface ElectronAPI {
   os: NodeJS.Platform
+  user: string
 
   onFocus: (callback: (isFocused: boolean) => void) => void
   dialog: (options: Electron.OpenDialogOptions) => Promise<Electron.OpenDialogReturnValue>
@@ -9,10 +10,12 @@ export interface ElectronAPI {
   loadData: (path: string) => Promise<string>
   storeSafeData: (path: string, data: string) => Promise<void>
   loadSafeData: (path: string) => Promise<string>
+  updateNativeTheme: (theme: typeof nativeTheme.themeSource) => Promise<void>
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
   os: process.platform,
+  user: process.env.USER ?? process.env.USERNAME ?? '',
 
   onFocus: (callback: (isFocused: boolean) => void) => {
     ipcRenderer.on('window-focus', (_, isFocused) => callback(isFocused))
@@ -36,5 +39,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   loadSafeData: async (name: string) => {
     return await ipcRenderer.invoke('loadSafeData', name)
+  },
+
+  updateNativeTheme: async (theme: typeof nativeTheme.themeSource) => {
+    return await ipcRenderer.invoke('updateNativeTheme', theme)
   }
 } satisfies ElectronAPI)
