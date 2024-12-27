@@ -1,9 +1,21 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, safeStorage } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  nativeImage,
+  nativeTheme,
+  safeStorage,
+  Tray
+} from 'electron'
 import { existsSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const isDev = process.env.npm_lifecycle_event === 'app:dev' ? true : false
+
+let tray
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -40,6 +52,26 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow()
+
+  const trayIcon = nativeImage.createFromPath(join(__dirname, '../images/TrayTemplate@2x.png'))
+  const trayContextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Open',
+      click: () => {
+        createWindow()
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        app.quit()
+      }
+    }
+  ])
+
+  tray = new Tray(trayIcon, '30a53ceb-4e9d-437d-b5fe-22b1f21f24c1')
+  tray.setToolTip('SSHFS-Win Manager')
+  tray.setContextMenu(trayContextMenu)
 
   ipcMain.handle('dialog', async (event, options) => {
     return await dialog.showOpenDialog(options)
