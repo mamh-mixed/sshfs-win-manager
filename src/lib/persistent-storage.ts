@@ -3,13 +3,13 @@ import { PiniaPluginContext } from 'pinia'
 declare module 'pinia' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface DefineStoreOptionsBase<S, Store> {
-    useStorage?: boolean
-    useSafeStorage?: boolean
+    usePersistentStorage?: boolean
+    useSafePersistentStorage?: boolean
   }
 }
 
-export const storage = ({ store, options }: PiniaPluginContext) => {
-  if (options.useStorage === true) {
+export const persistentStorage = ({ store, options }: PiniaPluginContext) => {
+  if (options.usePersistentStorage === true) {
     window.electronAPI.loadData(store.$id).then((data) => {
       if (data !== '') {
         store.$patch(JSON.parse(data))
@@ -21,7 +21,7 @@ export const storage = ({ store, options }: PiniaPluginContext) => {
     })
   }
 
-  if (options.useSafeStorage === true) {
+  if (options.useSafePersistentStorage === true) {
     window.electronAPI.loadSafeData(store.$id).then((data) => {
       if (data !== '') {
         store.$patch(JSON.parse(data))

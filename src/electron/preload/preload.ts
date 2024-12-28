@@ -4,7 +4,6 @@ export interface ElectronAPI {
   os: NodeJS.Platform
   user: string
 
-  onFocus: (callback: (isFocused: boolean) => void) => void
   dialog: (options: Electron.OpenDialogOptions) => Promise<Electron.OpenDialogReturnValue>
   storeData: (path: string, data: string) => Promise<void>
   loadData: (path: string) => Promise<string>
@@ -16,10 +15,6 @@ export interface ElectronAPI {
 contextBridge.exposeInMainWorld('electronAPI', {
   os: process.platform,
   user: process.env.USER ?? process.env.USERNAME ?? '',
-
-  onFocus: (callback: (isFocused: boolean) => void) => {
-    ipcRenderer.on('window-focus', (_, isFocused) => callback(isFocused))
-  },
 
   dialog: async (options: Electron.OpenDialogOptions) => {
     return await ipcRenderer.invoke('dialog', options)

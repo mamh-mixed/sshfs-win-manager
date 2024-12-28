@@ -88,6 +88,6 @@ export const useConnectionStore = defineStore(
     }
   },
   {
-    useSafeStorage: true
+    useSafePersistentStorage: true
   }
 )

@@ -41,6 +41,6 @@ export const useSettingsStore = defineStore(
     }
   },
   {
-    useStorage: true
+    usePersistentStorage: true
   }
 )

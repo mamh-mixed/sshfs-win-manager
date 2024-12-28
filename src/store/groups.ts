@@ -102,6 +102,6 @@ export const useGroupStore = defineStore(
     }
   },
   {
-    useStorage: true
+    usePersistentStorage: true
   }
 )

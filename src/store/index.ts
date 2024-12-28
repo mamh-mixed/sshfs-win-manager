@@ -1,9 +1,9 @@
 import { createPinia } from 'pinia'
 
-import { storage } from '../lib/storage'
+import { persistentStorage } from '../lib/persistent-storage'
 
 const pinia = createPinia()
 
-pinia.use(storage)
+pinia.use(persistentStorage)
 
 export default pinia
