@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { v4 as uuid } from 'uuid'
 import { ref } from 'vue'
+
 import { useGroupStore } from './groups'
+import { useMainStore } from './main'
 
 export interface ConnectionOption {
   id: string
@@ -32,6 +34,7 @@ export const useConnectionStore = defineStore(
   'connections',
   () => {
     const groupStore = useGroupStore()
+    const mainStore = useMainStore()
 
     const connections = ref<Connection[]>([])
 
@@ -44,6 +47,7 @@ export const useConnectionStore = defineStore(
     }
 
     function add(connection: Omit<Connection, 'id'>): Connection {
+      const activeGroupId = mainStore.getActiveGroup().id
       const conn: Connection = {
         ...connection,
         id: uuid(),
@@ -55,6 +59,10 @@ export const useConnectionStore = defineStore(
       connections.value.push(conn)
 
       groupStore.addConnection('all', conn.id)
+
+      if (activeGroupId !== 'all') {
+        groupStore.addConnection(activeGroupId, conn.id)
+      }
 
       return conn
     }
