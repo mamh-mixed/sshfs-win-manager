@@ -1,6 +1,6 @@
 import { createPinia } from 'pinia'
 
-import { persistentStorage } from '../lib/persistent-storage'
+import { persistentStorage } from '../plugins/persistent-storage'
 
 const pinia = createPinia()
 

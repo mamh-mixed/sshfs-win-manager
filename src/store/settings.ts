@@ -1,21 +1,14 @@
-import { nativeTheme } from 'electron'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
-import { getDefaultSSHFSBinPath } from '../lib/os'
-
-export interface Settings {
-  sshfsBin: string
-  startupWithOS: boolean
-  processStatusCheckInterval: number
-  theme: typeof nativeTheme.themeSource
-}
+import { getDefaultSshfsBinPath } from '../lib/helpers'
+import { Settings } from '../shared/settings'
 
 export const useSettingsStore = defineStore(
   'settings',
   () => {
     const settings = ref<Settings>({
-      sshfsBin: getDefaultSSHFSBinPath(),
+      sshfsBin: getDefaultSshfsBinPath(),
       startupWithOS: false,
       processStatusCheckInterval: 5,
       theme: 'system'

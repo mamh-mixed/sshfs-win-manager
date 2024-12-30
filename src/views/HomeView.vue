@@ -7,8 +7,9 @@ import ConnectionOptionsEditor from '../components/ConnectionOptionsEditor.vue'
 import DialogModal from '../components/DialogModal.vue'
 import GroupItem from '../components/GroupItem.vue'
 
-import { getDefaultPrivateKeyPath, getDefaultSSHFSBinPath } from '../lib/os'
-import { Connection, useConnectionStore } from '../store/connections'
+import { getDefaultSshfsBinPath } from '../lib/helpers'
+import { Connection } from '../shared/connection'
+import { useConnectionStore } from '../store/connections'
 import { Group, useGroupStore } from '../store/groups'
 import { useMainStore } from '../store/main'
 import { useSettingsStore } from '../store/settings'
@@ -41,6 +42,16 @@ const deleteConnectionId = ref('')
 
 const connections = computed<Connection[]>(() => {
   return mainStore.getActiveGroup()?.connections.map((id) => connectionStore.get(id)) ?? []
+})
+
+const defaultSshfsBinPath = computed<string>(() => {
+  return getDefaultSshfsBinPath()
+})
+
+const defaultPrivateKeyPath = computed<string>(() => {
+  return window.electronAPI.os === 'win32'
+    ? `C:\\Users\\${window.electronAPI.user}\\.ssh\\id_rsa`
+    : `/home/${window.electronAPI.user}/.ssh/id_rsa`
 })
 
 function connect(connection: Connection): void {
@@ -89,7 +100,7 @@ function openConnectionEditor(connection?: Connection): void {
     connectionEditorData.value = {
       port: '22',
       authMethod: 'password',
-      keyFile: getDefaultPrivateKeyPath(),
+      keyFile: defaultPrivateKeyPath.value,
       options: []
     }
     isEditing.value = false
@@ -382,7 +393,7 @@ onMounted(() => {
           <input
             v-model="connectionEditorData.keyFile"
             class="form-input"
-            :placeholder="getDefaultPrivateKeyPath()"
+            :placeholder="defaultPrivateKeyPath"
           />
         </label>
       </div>
@@ -511,7 +522,7 @@ onMounted(() => {
           <input
             v-model="settingsStore.settings.sshfsBin"
             class="form-input"
-            :placeholder="getDefaultSSHFSBinPath()"
+            :placeholder="defaultSshfsBinPath"
           />
         </label>
       </div>
